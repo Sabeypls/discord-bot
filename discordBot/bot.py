@@ -2,7 +2,11 @@ import discord
 from discord.ext import commands
 from random import randint
 
+from music_cog import music_cog
+
 client = commands.Bot(command_prefix = '.')
+
+client.add_cog(music_cog(client))
 
 # connection establish
 @client.event
@@ -44,9 +48,10 @@ async def on_message(message):
 
             # check the message that it was from 408532966080512000 which is rod
             if message.author.id == 408532966080512000:
-                await message.channel.send('when is sc2 tho <@408532966080512000>') # a twist reply
-                ## todo
-                ## make the twist reply a random game
+                list = ['sc2', 'gtav', 'gta5', 'lost ark', 'ze', 'mg', 'poker night', 'codenames', 'minigames', 'starcraft 2', 'grand theft auto 5', 'grand theft auto five',
+                                    'synergy', 'hl2dm', 'half-life 2: death match', 'counter-strike: global offensive', 'l4d2', 'left 4 dead 2', 'valorant', 'league of legends', 'lol']
+                end = list.count - 1
+                await message.channel.send('when is ' + list[randint(0, end)] + ' tho <@408532966080512000>') # a twist reply
 
         # check the message that it was from 408532966080512000 which is rod, again
         elif message.author.id == 408532966080512000:
@@ -58,11 +63,6 @@ async def on_message(message):
 
     # check the message has "sven" anywhere
     if 'sven' in message.content.lower():
-        # removed as it's redundant
-        ##if 'bf4' in message.content.lower():
-            ##if message.author.id == 408532966080512000:
-            ##    await message.channel.send('when is ze tho <@408532966080512000>')
-
         # check the message that it was from 408532966080512000 which is rod, again
         if message.author.id == 408532966080512000:
             await message.channel.send('when is bf4 tho <@408532966080512000>')
@@ -71,4 +71,4 @@ async def on_message(message):
         else:
             await message.channel.send('ask <@408532966080512000>')
 
-client.run('TOKEN')
+client.run('MjMzNzAxNzQxMTk4MDQ5Mjgx.V_bBtQ.ltCsNGHelbvYz3IdEJswiFctpyc')
