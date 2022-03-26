@@ -2,11 +2,13 @@ import discord
 from discord.ext import commands
 from random import randint
 
-from music_cog import music_cog
+from music_cog import music
+from pug_cog import pug
 
 client = commands.Bot(command_prefix = '.')
 
-client.add_cog(music_cog(client))
+client.add_cog(music(client))
+client.add_cog(pug(client))
 
 # connection establish
 @client.event
@@ -71,4 +73,4 @@ async def on_message(message):
         else:
             await message.channel.send('ask <@408532966080512000>')
 
-client.run('MjMzNzAxNzQxMTk4MDQ5Mjgx.V_bBtQ.ltCsNGHelbvYz3IdEJswiFctpyc')
+client.run('TOKEN')
