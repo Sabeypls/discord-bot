@@ -58,7 +58,7 @@ class music(commands.Cog):
         else:
             self.is_playing = False
 
-    @commands.command(name='play', alias='p')
+    @commands.command(name='p')
     async def play(self, ctx, *args):
         query = ' '.join(args)
 
@@ -80,7 +80,7 @@ class music(commands.Cog):
                 if self.is_playing == False:
                     await self.play_music(ctx)
 
-    @commands.command(name='pause')
+    @commands.command(name='pp')
     async def pause(self, ctx, *args):
         if self.is_playing:
             self.is_playing = False
@@ -91,14 +91,14 @@ class music(commands.Cog):
             self.is_paused = False
             self.vc.resume()
 
-    @commands.command(name='resume')
+    @commands.command(name='r')
     async def resume(self, ctx, *args):
         if self.is_paused:
             self.is_playing = True
             self.is_paused = False
             self.vc.resume()
 
-    @commands.command(name='queue')
+    @commands.command(name='q')
     async def queue(self, ctx):
         retval = ''
         for i in range(0, len(self.music_queue)):
@@ -110,20 +110,20 @@ class music(commands.Cog):
         else:
             await ctx.send('The queue is empty')
 
-    @commands.command(name='clear')
+    @commands.command(name='c')
     async def clear(self, ctx, *args):
         if self.vc != None and self.is_playing:
             self.vc.stop()
         self.music_queue = []
         await ctx.send('Queue cleared')
 
-    @commands.command(name='skip')
+    @commands.command(name='s')
     async def skip(self, ctx, *args):
         if self.vc != None and self.vc:
             self.vc.stop()
             await self.play_music(ctx)
 
-    @commands.command(name='leave')
+    @commands.command(name='l')
     async def leave(self, ctx):
         self.is_playing = False
         self.is_paused = False

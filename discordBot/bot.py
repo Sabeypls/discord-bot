@@ -6,7 +6,6 @@ from music_cog import music
 from pug_cog import pug
 
 client = commands.Bot(command_prefix = '.')
-
 client.add_cog(music(client))
 client.add_cog(pug(client))
 
@@ -72,5 +71,7 @@ async def on_message(message):
         # the sender was not rod and did not contain both "sven" and "bf4"    
         else:
             await message.channel.send('ask <@408532966080512000>')
+    
+    await client.process_commands(message)
 
 client.run('TOKEN')
