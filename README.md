@@ -1,9 +1,12 @@
+# Shout out
+Shout out to Ixion#4107 for the assist!
+
 # Sabeypls' Discord Bot
 Music (tbh, this was what I used to get a basis of things) [Credits to https://github.com/pawel02/]
 
 Pick Up Group
 
-Lost Ark
+Lost Ark?
 
 # Lost Ark?
 
