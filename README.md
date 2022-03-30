@@ -63,6 +63,8 @@ More error codes? Not sure yet.
 
 Databasing! Would be neat to have a database to store data such as wins and losses. However, am poor.
 
+Timeout? Clear the roles and empty the cache after X hours
+
 I'm sure there's more that I am missing and this will be updated a few more times.
 
 # Tune up or remake the music_cog
