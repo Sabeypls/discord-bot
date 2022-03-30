@@ -2,12 +2,12 @@ import discord
 from discord.ext import commands
 from random import randint
 
-from music_cog import music
-from pug_cog import pug
+#rom music_cog import music
+#from pug_cog import pug
 
 client = commands.Bot(command_prefix = '.')
-client.add_cog(music(client))
-client.add_cog(pug(client))
+client.load_extension('pug_cog')
+client.load_extension('music_cog')
 
 # connection establish
 @client.event
@@ -73,5 +73,13 @@ async def on_message(message):
             await message.channel.send('ask <@408532966080512000>')
     
     await client.process_commands(message)
+
+@client.command()
+@commands.is_owner()
+async def reload(ctx, extension):
+    extension = extension+'_cog'
+    client.reload_extension(extension)
+    embed = discord.Embed(title='Reload', description=f'{extension} successfully reloaded', color=0xff00c8)
+    await ctx.send(embed=embed)
 
 client.run('TOKEN')
