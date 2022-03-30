@@ -22,7 +22,7 @@ class music(commands.Cog):
             except Exception:
                 return False
 
-        return {'source': info['formats'[0]['url']], 'title': info['title']}
+        return {'source': info['formats'][0]['url'], 'title': info['title']}
 
     def play_next(self):
         if len(self.music_queue) > 0:
@@ -49,7 +49,7 @@ class music(commands.Cog):
                     return
             
             else:
-                await self.bot.move_to(self.music_queue[0][1])
+                await self.client.move_to(self.music_queue[0][1])
 
             self.music_queue.pop(0)
 
@@ -128,3 +128,6 @@ class music(commands.Cog):
         self.is_playing = False
         self.is_paused = False
         await self.vc.disconnect()
+
+def setup(client):
+    client.add_cog(music(client))

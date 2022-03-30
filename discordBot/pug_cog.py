@@ -1,10 +1,7 @@
-from operator import index
-import discord
 from discord.ext import commands
 from discord.utils import get
 
 import numpy
-import asyncio
 from random import shuffle
 
 class pug(commands.Cog):
@@ -15,10 +12,7 @@ class pug(commands.Cog):
         self.team1 = []
         self.team2 = []
 
-        self.channel1 = 939799812822409226
-        self.channel2 = 939799877720879125
-
-    # .join will add the sender's member object into the player_list
+    # .join will add the user's object into the player_list
     @commands.command(name = 'join')
     async def join_queue(self, ctx):
         # if sender's member object is not found in player_list, add them to player_list
@@ -36,20 +30,21 @@ class pug(commands.Cog):
             # debugging
             print(self.player_list)
 
-        # sender's member object is found, do not add them to player_list
         else:
             await ctx.send(ctx.author.mention + ' you\'ve already joined the queue', delete_after=3)
     
-    # .start will initiate the functions in this cog
+    # .start begin matchmaking 
+    # setting and removing the appropriate roles and adding them to team1 and team2
     @commands.command(name = 'start')
     @commands.has_role('PUG Leader')
     async def matchmake(self, ctx):
         # if player list is empty
         if not self.player_list:
             await ctx.send('0 Players detected')
+
         # player list has elements
         else:
-            # check if there are at least 2 elements in player list
+            # check if there are at least 2 elements in player_list
             if len(self.player_list) >= 2:
                 # 2 shuffles
                 shuffle(self.player_list)
@@ -82,24 +77,22 @@ class pug(commands.Cog):
                     await member.add_roles(role2)
                     await member.remove_roles(roleq)
 
-                # print message
                 await ctx.send('__**Team 1**__\n```' + '\n'.join(list(map(lambda x:x.name, split[0]))) + ' ```\n__**Team 2**__\n```' + '\n'.join(list(map(lambda x:x.name, split[1]))) + '\n```', delete_after=30)
-
-            # error there's only 1 player        
+      
             else:
                 await ctx.send('You can\'t matchmake with only 1 player!')
 
-    # .queued will display the player list
+    # .queue will display the player_list
     @commands.command(name = 'queue')
     async def display_queue(self, ctx):
         # if player list is empty
         if not self.player_list:
             await ctx.send('The queue is empty', delete_after=5)
-        # player list has elements
+
         else:
             await ctx.send('\n'.join(list(map(lambda x:x.name, self.player_list))) + '\nTotal Players: ' + str(len(self.player_list)), delete_after=10)
 
-    # .quit will remove the messager's display name out the player list
+    # .quit will remove the user from the player_list
     @commands.command(name = 'quit')
     async def leave_queue(self, ctx):
         # if the sender wants to leave but is found in team1 or team2
@@ -108,7 +101,7 @@ class pug(commands.Cog):
             role = get(ctx.guild.roles, name='PUG Leader')
             await ctx.send(role.mention + ', ' + ctx.author.mention + ' wants to leave')
 
-        # else they sender was only found in player_list, remove them from player_list
+        # else the sender was only found in player_list, remove them from player_list
         else:
             if ctx.message.author in self.player_list:
                 role = get(ctx.guild.roles, name='in queue...')
@@ -117,15 +110,14 @@ class pug(commands.Cog):
                 await ctx.message.author.remove_roles(role)
                 await ctx.send(ctx.author.mention + ' you\'ve left the queue', delete_after=3)
             
-            # they were never in queue to begin with!
             else:
                 await ctx.send('You, ' + ctx.author.mention + ', we\'re never in queue')
 
-    # .add will force a user to join
+    # .add will force a user to join the player_list
     @commands.command(name = 'add')
     @commands.has_role('PUG Leader')
-    async def add_player(self, ctx, *args):
-        input = ''.join(args)
+    async def add_player(self, ctx, arg):
+        input = ''.join(arg)
         
         ## transforming input to fit our needs
         # @user -> <@!###user###> -> ###user###
@@ -143,10 +135,7 @@ class pug(commands.Cog):
 
         role = get(ctx.guild.roles, name='in queue...')
 
-        # removed for now
-        # or input in list(map(lambda x: x.name.lower() + '#' + x.discriminator, ctx.guild.members))
-        #
-
+        # if the user was found in this discord
         if input in list(map(lambda x: x.name, ctx.guild.members)) or input in list(map(lambda x: x.id, ctx.guild.members)):
             # if input is an int use get_member as it passes only int
             if isinstance(input, int):
@@ -155,21 +144,88 @@ class pug(commands.Cog):
             else:
                 member = ctx.guild.get_member_named(input)
 
-            if member not in self.player_list:
+            # if the user was not in queue or in either team
+            if member not in self.player_list or member not in self.team1 or member not in self.team2:
                 await member.add_roles(role)
                 self.player_list.append(member)
                 await ctx.send(member.mention + ' you\'ve been added to the queue')
+
             else:
                 await ctx.send(member.display_name + ' is already in queue', delete_after=10)
 
         else:
-            await ctx.send(str(input) + ' was not found in this discord or is an invalid format (i.e. capitalization)', delete_after=10)         
+            await ctx.send(str(input) + ' was not found in this discord or is an invalid format (i.e. capitalization)', delete_after=10)
 
-    # .remove will remove
+    # .ring will force a user to team1 or team2
+    @commands.command(name = 'ring')
+    @commands.has_role('PUG Leader')
+    async def ring_player(self, ctx, arg1, arg2):
+        input = ''.join(arg1)
+        
+        ## transforming input to fit our needs
+        # @user -> <@!###digits###> -> ###digits###
+        input = input.replace('<@!', '')
+        input = input.replace('>', '')
+
+        # -> int ###digits###
+        if input.isdigit() == True:
+            input = int(input)
+        # username#discriminator -> Username
+        # or just username -> Username
+        else:
+            input = input.split('#', 1)[0]
+            input = input.capitalize()
+
+        # team input
+        input2 = ''.join(arg2)
+
+        role1 = get(ctx.guild.roles, name='Team 1')
+        role2 = get(ctx.guild.roles, name='Team 2')
+        roleq = get(ctx.guild.roles, name='in queue...')
+
+        if input in list(map(lambda x: x.name, ctx.guild.members)) or input in list(map(lambda x: x.id, ctx.guild.members)):
+            # if input is an int use get_member as it passes only int
+            if isinstance(input, int):
+                member = ctx.guild.get_member(input)
+
+            # else use get_member_named as it passes only str
+            else:
+                member = ctx.guild.get_member_named(input)
+
+            # if user is not on any team
+            if member not in self.team1 or self.team2:
+                # put player into team 1
+                if input2 == 'team1' or input2 == '1' or input2 == 'one':
+                    await member.add_roles(role1)
+                    await member.remove_roles(roleq)
+                    self.player_list.append(member)
+                    self.team1.append(member)
+                    await ctx.send(member.mention + ' you\'ve been added to team 1')
+
+                # put player into team 2
+                elif input2 == 'team2' or input2 == '2' or input2 == 'two':
+                    await member.add_roles(role2)
+                    await member.remove_roles(roleq)
+                    self.player_list.append(member)
+                    self.team2.append(member)
+                    await ctx.send(member.mention + ' you\'ve been added to team 2')
+                
+                else:
+                    await ctx.send(str(input2) + ' is not a valid input')
+                    await ctx.send('``` \nteam1 or 1 or one\nteam2 or 2 or two\n ```', delete_after=5)
+
+            else:
+                await ctx.send(member.display_name + ' is already in a team', delete_after=10)
+
+        else:
+            await ctx.send(str(input) + ' was not found in this discord or is an invalid format (i.e. capitalization)', delete_after=10)        
+
+    # .remove will remove user from player_list and team1 or team2
+    # will also remove roles when applicable
     @commands.command(name = 'remove')
     @commands.has_role('PUG Leader')
-    async def remove_player(self, ctx, *args):
-        input = ''.join(args)
+    async def remove_player(self, ctx, arg):
+        input = ''.join(arg)
 
         # @user -> <@!###user###> -> ###user###
         input = input.replace('<@!', '')
@@ -198,24 +254,14 @@ class pug(commands.Cog):
                 member = ctx.guild.get_member_named(input)
 
             # if member is found in player_list, team1, or team2
-            if member in self.player_list or member in self.team1 or member in self.team2:
-                # if we entered here cause of player_list
-                # remove member's role, in queue..., and delete them off player_list 
-                if member in self.player_list:   
-                    await member.remove_roles(roleq)
-                    self.player_list.remove(member)
-                
-                # if we entered here cause of team1
-                # remove member's role, team 1, and delete them off team1
-                if member in self.team1:
-                    await member.remove_roles(role1)
-                    self.team1.remove(member)
+            if member in self.player_list or member in self.team1 or member in self.team2:  
+                await member.remove_roles(roleq)
+                await member.remove_roles(role1)
+                await member.remove_roles(role2)
 
-                # if we entered her cause of team2
-                # remove member's role, team 2, and delete them off team2
-                if member in self.team2:
-                    await member.remove_roles(role2)
-                    self.team2.remove(member)
+                self.player_list.remove(member)
+                self.team1.remove(member)
+                self.team2.remove(member)
 
                 await ctx.send(member.mention + ' you\'ve been removed', delete_after=5)
 
@@ -245,7 +291,6 @@ class pug(commands.Cog):
     @commands.command(name = 'clearall')
     @commands.has_role('PUG Leader')
     async def clear_all(self, ctx):
-        # get roles: "Team 1", "Team 2", and "in queue..."
         role1 = get(ctx.guild.roles, name='Team 1')
         role2 = get(ctx.guild.roles, name='Team 2')
         roleq = get(ctx.guild.roles, name='in queue...')
@@ -262,7 +307,7 @@ class pug(commands.Cog):
     # .clearteams will empty both teams but not the player list
     @commands.command(name = 'clearteams')
     @commands.has_role('PUG Leader')
-    async def clear_team1(self, ctx):
+    async def clear_teams(self, ctx):
         # get roles: "Team 1", "Team 2", and "in queue..."
         role1 = get(ctx.guild.roles, name='Team 1')
         role2 = get(ctx.guild.roles, name='Team 2')
@@ -273,103 +318,57 @@ class pug(commands.Cog):
 
         self.team1.clear()
         self.team2.clear()
+
         await ctx.send('Teams cleared', delete_after=5)
 
     # .clearqueue will empty the player list
     @commands.command(name = 'clearqueue')
     @commands.has_role('PUG Leader')
     async def clear_player_list(self, ctx):
-        # get roles "in queue..."
         roleq = get(ctx.guild.roles, name='in queue...')
 
         for member in self.player_list:
             await member.remove_roles(roleq)
 
         self.player_list.clear()
+
         await ctx.send('Queue cleared', delete_after=5)
     
+    # .cleanup will clear roles from EVERYONE in the discord
+    # mostly used when I messed up :P
     @commands.command(name = 'cleanup')
     @commands.has_role('PUG Leader')
     async def clean_up(self, ctx):
         role1 = get(ctx.guild.roles, name='Team 1')
         role2 = get(ctx.guild.roles, name='Team 2')
         roleq = get(ctx.guild.roles, name='in queue...')
+
         ctx.send('This process can take a while\nCleaning...')
 
         for member in ctx.guild.members:
             await member.remove_roles(role1, role2, roleq)
 
         ctx.send('Cleaning completed')
+
+    # .vc will force users that are in voice channels already into the respective voice channels
+    @commands.command(name = 'vc')
+    @commands.has_role('PUG Leader')
+    async def force_vc(self, ctx):
+        channel1 = get(ctx.guild.voice_channels, name='Team 1')
+        channel2 = get(ctx.guild.voice_channels, name='Team 2')
+
+        for member in self.team1:
+            await member.move_to(channel1)
+
+        for member in self.team2:
+            await member.move_to(channel2)
+        
+        await ctx.send('Forcing voice channels', delete_after=5)
     
-    ###############
-    ## TODO #######
-    ## test this ##
-    ## VVVVVVVVV ##
-    ###############
-
-    # .setvc1 will assign a channel for team 1 to connect to
-    @commands.command(name = 'setvc1')
-    @commands.has_role('PUG Leader')
-    async def set_channel1(self, ctx, *args):
-        channel_id = ''.join(args)
-
-        # check argument is a int
-        if isinstance(channel_id, str) == True:
-            # attempt to connect to the voice channel id
-            await self.connect(channel_id)
-            
-            # if connected, set channel
-            if self.is_connected == True:
-                self.vc1 = channel_id
-
-                await ctx.send('*Checking...*', delete_after=1)
-                asyncio.sleep(1)
-                await ctx.send('Channel Set', delete_after=5)
-                
-                # disconnect after
-                self.disconnect()
-            # if failed to connect, channel id or int provided is invalid
-            else:
-                await ctx.send('Not a valid channel id')
-        # argument was not an int
-        else:
-            await ctx.send('Not a valid input')
-
-    ###############
-    ## TODO #######
-    ## test this ##
-    ## VVVVVVVVV ##
-    ###############
-
-    @commands.command(name = 'setvc2')
-    @commands.has_role('PUG Leader')
-    async def set_channel2(self, ctx, *args):
-        channel_id = ''.join(args)
-
-        # check argument is a int
-        if isinstance(channel_id, str) == True:
-            # attempt to connect to the voice channel id
-            await self.connect(channel_id)
-            
-            # if connected, set channel
-            if self.is_connected == True:
-                self.vc2 = channel_id
-
-                await ctx.send('*Checking...*', delete_after=1)
-                asyncio.sleep(1)
-                await ctx.send('Channel Set', delete_after=5)
-                
-                # disconnect after
-                self.disconnect()
-            # if failed to connect, channel id or int provided is invalid
-            else:
-                await ctx.send('Not a valid channel id')
-        # argument was not an int
-        else:
-            await ctx.send('Not a valid input')
-
+    # .check is mostly for debugging
     @commands.command(name = 'check')
-    async def debug(self, ctx):
+    @commands.has_role('PUG Leader')
+    async def debuggin(self, ctx):
         print('\n\n')
         print('player_list = '+str(self.player_list)+'\n')
         print('team1 = '+str(self.team1)+'\n')
@@ -389,3 +388,90 @@ class pug(commands.Cog):
                 await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
         else:
             raise error
+
+    @add_player.error
+    async def add_player_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @ring_player.error
+    async def ring_player_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+    
+    @remove_player.error
+    async def remove_player_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @clear_all.error
+    async def clear_all_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @clear_teams.error
+    async def clear_teams_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @clear_player_list.error
+    async def clear_player_list_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @clean_up.error
+    async def clean_up_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @force_vc.error
+    async def force_vc_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+    @debuggin.error
+    async def debuggin_error(self, ctx, error):
+        role = get(ctx.guild.roles, name='PUG Leader')
+        if isinstance(error, commands.MissingRole):
+            if error.missing_role.id == role.id:
+                await ctx.send('Denied: missing **[PUG Leader]** role', delete_after=5)
+        else:
+            raise error
+
+# on bot start up
+# add this cog
+# used to reload this cog so the bot doesn't have to go down to update
+def setup(client):
+    client.add_cog(pug(client))
