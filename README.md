@@ -6,6 +6,8 @@ Music (tbh, this was what I used to get a basis of things) [Credits to https://g
 
 Pick Up Group
 
+Sven Co-op aka the new Rod
+
 Lost Ark?
 
 # Lost Ark?
@@ -39,6 +41,8 @@ ring [user] [team] - Force a user to join a team
 
 remove [user] - Removes user from queue and team
 
+shuffle - Shuffles the teams again
+
 clearall - Clears queue, team 1, and team 2
 
 clearteams - Clears team 1 and team 2
@@ -53,8 +57,6 @@ check - Mostly for debugging purposes but will send the message containing all c
 
 # Plans
 
--Add a shuffle feature to pug_cog that will shuffle the teams around
-
 -Add an options to redefine the roles and teams to meet the end user's needs
 
 -Add an option to randomize a game to play
@@ -65,9 +67,25 @@ Databasing! Would be neat to have a database to store data such as wins and loss
 
 Timeout? Clear the roles and empty the cache after X hours
 
+Store the cache data in bot.py instead of the cog? This way it won't lose those data on reload.
+
 I'm sure there's more that I am missing and this will be updated a few more times.
 
-# Tune up or remake the music_cog
+# Sven Launcher - For Rod
+
+This is to launch Svends.exe through the batch.sat file. The Sven Co-op Server will be put up for local use.
+
+Only rod#0581 has access to majority of these commands
+
+startsven - Launches Svends
+
+restartsven - Kills Svends then re-launches Svends
+
+stopsven - Kills Svends so it'll stop running while I'm not on my PC (the bot is still hosted off my PC unfortunately)
+
+Alternatively, if 2 users (that are not rod#0581) do stopsven, it will also kill Svends
+
+# Additional functions for music_cog
 
 Not sure about this one as I originally intended to focus on my personal needs within my circle
 and there are better alternatives that are well established already out there
