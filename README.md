@@ -1,6 +1,3 @@
-# Shout out
-Shout out to Ixion#4107 for the assist!
-
 # Sabeypls' Discord Bot
 Music (tbh, this was what I used to get a basis of things) [Credits to https://github.com/pawel02/]
 
@@ -11,12 +8,10 @@ Sven Co-op aka the new Rod
 Lost Ark?
 
 # Lost Ark?
-
 Maintenance post was the plan but... Lost Ark has no api but I was considering just looking at twitter
 for a maintenance post then just reposting the twitter post into discord.
 
 # PUG
-
 join - Places user into the queue and issues 'in queue...' role
 
 queue - Check the queue list
@@ -86,6 +81,8 @@ stopsven - Kills Svends so it'll stop running while I'm not on my PC (the bot is
 Alternatively, if 2 users (that are not rod#0581) do stopsven, it will also kill Svends
 
 # Additional functions for music_cog
-
 Not sure about this one as I originally intended to focus on my personal needs within my circle
 and there are better alternatives that are well established already out there
+
+# Shout out
+Shout out to Ixion#4107 for the assist!
