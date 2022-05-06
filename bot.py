@@ -33,4 +33,4 @@ async def reload(ctx, extension):
     embed = discord.Embed(title='Reload', description=f'{extension} successfully reloaded', color=0xff00c8)
     await ctx.send(embed=embed)
 
-client.run('TOKEN')
+client.run('MjMzNzAxNzQxMTk4MDQ5Mjgx.V_bBtQ.aYSxDTh5haJpRUjC7jFARIOS2HI')
