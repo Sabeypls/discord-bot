@@ -6,8 +6,8 @@ client = commands.Bot(command_prefix = '.')
 client.load_extension('pug_cog')
 client.load_extension('music_cog')
 client.load_extension('rod_cog')
-#client.load_extension('twitter_cog')
-# soon?
+client.load_extension('fme_cog')
+client.load_extension('func_cog')
 
 # connection establish
 @client.event
@@ -27,10 +27,11 @@ async def change_games():
 
 @client.command()
 @commands.is_owner()
-async def reload(ctx, extension):
+async def restart(ctx, extension):
     extension = extension+'_cog'
     client.reload_extension(extension)
-    embed = discord.Embed(title='Reload', description=f'{extension} successfully reloaded', color=0xff00c8)
+    embed = discord.Embed(title='Success!', description=f'{extension} successfully restarted', color=0x000000)
+    embed.set_footer(text='This is only for owners. Does nothing.')
     await ctx.send(embed=embed)
 
 client.run('TOKEN')

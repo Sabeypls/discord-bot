@@ -119,6 +119,12 @@ class pug(commands.Cog):
                 await ctx.message.delete()
                 await ctx.send('You can\'t matchmake with only 1 player!')
 
+    ## Draft?
+    @commands.command(name = 'draft')
+    @commands.has_role('PUG Leader')
+    async def draft_match(self, ctx):
+        await ctx.send('Soon^tm')
+
     # .add will force a user to join the player_list
     @commands.command(name = 'add')
     @commands.has_role('PUG Leader')
@@ -127,7 +133,7 @@ class pug(commands.Cog):
         
         ## transforming input to fit our needs
         # @user -> <@!###user###> -> ###user###
-        input = input.replace('<@!', '')
+        input = input.replace('<@', '')
         input = input.replace('>', '')
 
         # -> int user
@@ -174,7 +180,7 @@ class pug(commands.Cog):
         
         ## transforming input to fit our needs
         # @user -> <@!###digits###> -> ###digits###
-        input = input.replace('<@!', '')
+        input = input.replace('<@', '')
         input = input.replace('>', '')
 
         # -> int ###digits###
@@ -243,7 +249,7 @@ class pug(commands.Cog):
         input = ''.join(arg)
 
         # @user -> <@!###user###> -> ###user###
-        input = input.replace('<@!', '')
+        input = input.replace('<@', '')
         input = input.replace('>', '')
 
         # -> int user
@@ -284,6 +290,9 @@ class pug(commands.Cog):
         else:
             await ctx.send(str(input) + ' was not found in this discord or is an invalid format (i.e. capitalization)', delete_after=10)
 
+    ## TODO ##
+    ## I'm pretty sure this doesn't account for ringers
+    ## Not sure if I want it that way or account for ringers
     # .shuffle will reform teams
     @commands.command(name = 'shuffle')
     @commands.has_role('PUG Leader')
@@ -367,6 +376,10 @@ class pug(commands.Cog):
             await ctx.message.delete()
             await ctx.send('__**Team 2**__\n```\n' + '\n'.join(list(map(lambda x:x.name, self.team2))) + '\n```', delete_after=30)
 
+    #########################
+    ######### CLEAR #########
+    #########################
+
     # .clearall will empty both teams and the player list
     @commands.command(name = 'clearall')
     @commands.has_role('PUG Leader')
@@ -392,10 +405,9 @@ class pug(commands.Cog):
         # get roles: "Team 1", "Team 2", and "in queue..."
         role1 = get(ctx.guild.roles, name='Team 1')
         role2 = get(ctx.guild.roles, name='Team 2')
-        roleq = get(ctx.guild.roles, name='in queue...')
 
         for member in self.player_list:    
-            await member.remove_roles(role1, role2, roleq)
+            await member.remove_roles(role1, role2)
 
         self.team1.clear()
         self.team2.clear()
@@ -426,12 +438,10 @@ class pug(commands.Cog):
         role2 = get(ctx.guild.roles, name='Team 2')
         roleq = get(ctx.guild.roles, name='in queue...')
 
-        await ctx.message.delete()
-        ctx.send('This process can take a while\nCleaning...', delete_after=10)
-
         for member in ctx.guild.members:
             await member.remove_roles(role1, role2, roleq)
-
+        
+        await ctx.message.delete()
         ctx.send('Cleaning completed', delete_after=10)
 
     # .vc will force users that are in voice channels already into the respective voice channels

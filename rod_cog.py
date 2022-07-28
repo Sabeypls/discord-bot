@@ -78,6 +78,14 @@ class rod(commands.Cog):
             subprocess.Popen('D:\SteamServer\sven\\start.bat')
         else:
             await ctx.send('The server is not up')
+        
+    @start_sven_server.error
+    async def start_sven_server_error(self, ctx, error):
+        await ctx.send('Denied: missing **[When\'s Sven @rod#0581]** role')
+
+    @restart_sven_server.error
+    async def restart_sven_server(self, ctx, error):
+        await ctx.send('Denied: missing **[When\'s Sven @rod#0581]** role')
 
 # on bot start up
 # add this cog
