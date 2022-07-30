@@ -2,7 +2,10 @@ import discord
 from discord.ext import commands, tasks
 from random import randint
 
-client = commands.Bot(command_prefix = '.')
+intents = discord.Intents.default()
+intents.members = True
+
+client = commands.Bot(command_prefix = '.', intents=intents)
 client.load_extension('pug_cog')
 client.load_extension('music_cog')
 client.load_extension('rod_cog')
